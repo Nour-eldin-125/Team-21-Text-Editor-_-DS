@@ -12,7 +12,7 @@ function App() {
     <Router>
       <Switch>
         <Route path="/" exact>
-          <Redirect to={`/documents/${uuidV4()}`} />
+          <Redirect to={`/documents/${uuidV4()}`} /> //use :uuidv4 to create unique id for each doc
         </Route>
         <Route path="/documents/:id">
           <TextEditor />
