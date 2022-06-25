@@ -4,7 +4,10 @@ import "quill/dist/quill.snow.css"
 import { io } from "socket.io-client"
 import { useParams } from "react-router-dom"
 
-const SAVE_INTERVAL_MS = 2000
+const SAVE_INTERVAL_MS = 1000
+
+// in Quil there is a Toolbar implemented already in the liberary so this api calls the ToolBar
+// 
 const TOOLBAR_OPTIONS = [
   ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
   ['blockquote', 'code-block'],
@@ -38,6 +41,8 @@ export default function TextEditor() {
     }
   }, [])
 
+  // here the client asks the server if there any existing document to load or not
+
   useEffect(() => {
     if (socket == null || quill == null) return
 
@@ -48,6 +53,9 @@ export default function TextEditor() {
 
     socket.emit("get-document", documentId)
   }, [socket, quill, documentId])
+
+  // here the automatic save is done by saving to the database the every 1 second (1000 MS)
+  // the client sends the server the content of the page and the server saves it to the database
 
   useEffect(() => {
     if (socket == null || quill == null) return
@@ -60,6 +68,9 @@ export default function TextEditor() {
       clearInterval(interval)
     }
   }, [socket, quill])
+
+
+  // here the handleing of multiple editing in the same document 
 
   useEffect(() => {
     if (socket == null || quill == null) return
@@ -74,6 +85,11 @@ export default function TextEditor() {
     }
   }, [socket, quill])
 
+
+  // here it handles the user editing in the document not the data from the server entering the document
+  /* so all the edits of the user are send to the server and saved and if any document having the same id of 
+     this document so the user edits is propagated by the server to all this documents */
+
   useEffect(() => {
     if (socket == null || quill == null) return
 
@@ -87,6 +103,11 @@ export default function TextEditor() {
       quill.off("text-change", handler)
     }
   }, [socket, quill])
+
+
+  /* here the document is blocked from editing till the respond of the server where after checking of the 
+     document in the server. the server sends the document data or creates new one and sends it to the client 
+     when send to the client the lock on editing is disabled so the client can edit in the document. */
 
   const wrapperRef = useCallback(wrapper => {
     if (wrapper == null) return
